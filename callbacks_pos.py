@@ -17,6 +17,8 @@ pos_counts = data_parser.get_pos_counts()
 nn1_MF = data_parser.get_mfn_ratio()
 tag_MF = data_parser.get_mfn_tag()
 
+
+# Line chart
 @app.callback(Output('pos_graph', 'figure'), 
             [Input('pos_dropdown', 'value')])
 def display_pos_graphs(selected_values):
@@ -38,7 +40,7 @@ def display_pos_graphs(selected_values):
 
         return fig
 
-
+# line chart
 @app.callback(
     Output('pos_groups_graph', 'figure'), 
     [Input('pos_groups_dropdown_1', 'value'),
@@ -64,7 +66,8 @@ def display_grouped_pos_graphs(values1, values2):
 
         return fig
 
-
+# year grouped bar chart
+# don't show NN1-tags correctly (count too low)
 @app.callback(
     Output('m-f-graph-year-grouping', 'figure'), 
     [Input('year-group-number', 'value')])
@@ -81,7 +84,20 @@ def display_grouped_pos_graphs(value):
         df['YearGroup'] = df['YearGroup'].astype("str")
         df = df.groupby(['YearGroup', 'SenderSex']).mean().reset_index()
 
-        return px.bar(df, x="YearGroup", y="PosCountNorm", color='SenderSex', barmode='group', title='Dynamically group years')  
+        return px.bar(
+            df,
+            x="YearGroup", 
+            y="PosCountNorm",
+            range_y=[0,20],
+            #labels={
+            #    'YearGoup': 'YearGroup', 
+            #    'PosCountNorm':'Percentage of NN1-tag'},
+            color='SenderSex', 
+            barmode='group', 
+            title='Dynamically group years')  
+
+
+# multiple tags bar chart
 
 @app.callback(
     Output('M/F_barChart', 'figure'), 
@@ -93,20 +109,20 @@ def display_multiple_tags_barchart(values):
     else:
         mask = tag_MF['Tags'].isin(values)
         fig= px.bar(
-            # can choose only one tag at a time
             data_frame=tag_MF[mask].groupby(['Year', 'SenderSex', 'Tags']).mean().reset_index(),
             x='Year', 
             y='PosCountNorm',
-            range_y=[0,30],
+            range_y=[0,20],
             labels={
                 'Year': 'Year', 
-                'PosCountNorm':'Percentage'},
+                'PosCountNorm':'Percentage of chosen tag(s)'},
             hover_data=['Tags'],
             color='SenderSex',
             barmode='group',
-            title='Compare male and female tags')
+            title='Compare male and female POS-tags')
 
         return fig
+
 
 @app.callback(
     Output('dynamic-subattribute-selection', 'value'),
@@ -122,6 +138,8 @@ def pos_selection(input1):
 
         return value, options
 
+# Dynamic attribute bar
+# don'tshow NN1 tags correctly (count too low)
 @app.callback(
     Output('dynamic-attribute-bar', 'figure'), 
     Input('pos_button', 'n_clicks'), # Only pressing the button initiates the function

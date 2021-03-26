@@ -34,10 +34,10 @@ class PosTab:
             data_frame=new_df.groupby(['Period', input1]).mean().reset_index(),
             x='Period', 
             y='PosCountNorm',
-            range_y=[0,30],
+            range_y=[0,20],
             labels={
                 'Year': 'Period', 
-                'PosCountNorm':'%'},
+                'PosCountNorm':'Percentage of NN1'},
             color=input1,
             barmode='group',
             title='Compare selected attribute')
